@@ -228,6 +228,10 @@ main() {
   rcon_host="$(extract_cfg ip "$cfg")"
   rcon_port="$(extract_cfg rconport "$cfg")"
   rcon_pass="$(extract_cfg rconpassword "$cfg")"
+  # If ip is 0.0.0.0 (common in LGSM), prefer loopback for RCON client connections.
+  if [ "$rcon_host" = "0.0.0.0" ] || [ -z "$rcon_host" ]; then
+    rcon_host="127.0.0.1"
+  fi
   if [ -z "$rcon_host" ] || [ -z "$rcon_port" ] || [ -z "$rcon_pass" ]; then
     echo "Failed to extract RCON settings from $cfg" >&2
     exit 1
@@ -285,7 +289,7 @@ msg="[INFO] Next wipe is Wednesday (${wipe_date}) at 20:00 JST (11:00 UTC)"
 RCON_PASS="${RCON_PASS:?RCON_PASS is required}" \
 RCON_HOST="${RCON_HOST:-127.0.0.1}" \
 RCON_PORT="${RCON_PORT:-28025}" \
-"$(dirname "$0")/bin/send-rcon.sh" "$msg"
+"$(dirname "$0")/send-rcon.sh" "$msg"
 EOSH
   chmod +x "$helper_dir/next-wipe-date.sh"
 
