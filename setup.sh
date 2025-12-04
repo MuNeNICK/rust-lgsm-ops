@@ -7,6 +7,7 @@ set -euo pipefail
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 invoking_user="${SUDO_USER:-$(id -un)}"
 default_base="$(cd "${script_dir}/.." && pwd)"
+bin_dir="${script_dir}/bin"
 
 # Default params
 YES=""
@@ -237,7 +238,6 @@ main() {
     exit 1
   fi
 
-  local bin_dir="$BASE_DIR/rust-lgsm-systemd-ops/bin"
   local helper_dir="$bin_dir"
   local mcrcon_bin="$bin_dir/mcrcon"
   ensure_mcrcon "$mcrcon_bin"
@@ -335,7 +335,7 @@ After=network.target
 Type=oneshot
 User=${RUN_USER}
 WorkingDirectory=${BASE_DIR}
-ExecStart=${BASE_DIR}/rust-lgsm-systemd-ops/bin/scheduled-restart-with-update.sh
+ExecStart=${bin_dir}/scheduled-restart-with-update.sh
 
 [Install]
 WantedBy=multi-user.target"
@@ -449,7 +449,7 @@ WorkingDirectory=${BASE_DIR}
 Environment=RCON_HOST=${rcon_host}
 Environment=RCON_PORT=${rcon_port}
 Environment=RCON_PASS=${rcon_pass}
-ExecStart=${BASE_DIR}/rust-lgsm-systemd-ops/bin/next-wipe-date.sh
+ExecStart=${bin_dir}/next-wipe-date.sh
 
 [Install]
 WantedBy=multi-user.target"
