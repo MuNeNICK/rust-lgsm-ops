@@ -257,10 +257,14 @@ EOSH
   cat > "$helper_dir/scheduled-restart-with-update.sh" <<'EOSH'
 #!/bin/bash
 set -euo pipefail
-cd "$(dirname "$0")/.."
 
 echo "[scheduled-restart] checking for updates..."
-if ./rustserver check-update | tee /tmp/rust-check-update.log | grep -qi "update available"; then
+log_raw="/tmp/rust-check-update.log"
+log_clean="/tmp/rust-check-update-clean.log"
+./rustserver check-update | tee "$log_raw"
+# Strip ANSI escapes so grep matches even with colored output.
+sed -r 's/\x1B\[[0-9;]*[A-Za-z]//g' "$log_raw" > "$log_clean" || cp "$log_raw" "$log_clean"
+if grep -Eqi "Update available" "$log_clean" && ! grep -Eqi "No update available" "$log_clean"; then
   echo "[scheduled-restart] update available -> running update"
   ./rustserver update
 else
